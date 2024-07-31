@@ -7,58 +7,61 @@ import './App.css';
 class App extends Component {
   constructor(props) {
     super(props);
+    // Initialize state with a default username or retrieve it from local storage
+    const savedUsername = localStorage.getItem('githubUsername') || 'ErikBjare';
     this.state = {
-      username: 'ErikBjare',
+      username: savedUsername,
       userData: [],
       userRepos: [],
       perPage: 7
-    }
+    };
   }
 
   // Get User's profile information from github API
   getUserData = () => {
-    fetch('http://api.github.com/users/' + this.state.username)
-      .then(function (response) {
+    fetch('https://api.github.com/users/' + this.state.username)
+      .then(response => {
         if (!response.ok) {
           throw Error(response.statusText);
         }
-        return response
+        return response;
       })
       .then(response => response.json())
       .then(json => {
         console.log(json);
-        this.setState(
-          { userData: json })
+        this.setState({ userData: json });
       })
-      .catch(function (error) {
-        console.log('There was a problem with fetch operation:' + error.message)
-      })
+      .catch(error => {
+        console.log('There was a problem with fetch operation: ' + error.message);
+      });
   }
+
   // Get User's repositories Github API call
   getUserRepos = () => {
-    fetch('http://api.github.com/users/' + this.state.username + '/repos?per_page=' + this.state.perPage + '&sort=created')
-      .then(function (response) {
+    fetch('https://api.github.com/users/' + this.state.username + '/repos?per_page=' + this.state.perPage + '&sort=created')
+      .then(response => {
         if (!response.ok) {
           throw Error(response.statusText);
         }
-        return response
+        return response;
       })
       .then(response => response.json())
       .then(json => {
         console.log(json);
-        this.setState(
-          { userRepos: json })
+        this.setState({ userRepos: json });
       })
-      .catch(function (error) {
-        console.log('There was a problem with fetch operation:' + error.message)
-      })
+      .catch(error => {
+        console.log('There was a problem with fetch operation: ' + error.message);
+      });
   }
 
   handleFormSubmit = (username) => {
-    this.setState({ username }, function () {
+    this.setState({ username }, () => {
+      // Save the new username to local storage
+      localStorage.setItem('githubUsername', username);
       this.getUserData();
       this.getUserRepos();
-    })
+    });
   }
 
   componentDidMount() {
@@ -69,7 +72,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Search onFormSubmit={this.handleFormSubmit.bind(this)} />
+        <Search onFormSubmit={this.handleFormSubmit} />
         <Profile {...this.state} />
       </div>
     );
